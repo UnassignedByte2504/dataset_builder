@@ -1,0 +1,40 @@
+services:
+  server:
+    build: ./server
+    image: oneiros-server:latest
+    ports:
+      - "8000:8000"
+    volumes:
+        - ./server:/opt/app
+    env_file:
+        - ./server/.env
+    networks:
+      - oneiros
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  client:
+    build: ./client
+    image: oneiros-client:latest
+    ports:
+      - "3000:3000"
+    volumes:
+        - ./client:/opt/app
+    networks:
+      - oneiros
+    depends_on:
+      - server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  oneiros:
+    driver: bridge
+
+
